@@ -18,16 +18,16 @@ class ObdReader{
     :rxPin(rxPin), txPin(txPin), resetPin(resetPin), atPin(atPin){};
     void setup();
     int getRpm();
- private:
-  mode_t mode;
-  SoftwareSerial *serial;
-  void setupBluetoothModule();
-  unsigned int rxPin, txPin, resetPin, atPin;
-  void enterComMode();
-  void enterATMode();
-  void reset();
-  boolean sendATCommand(const char* command);
-  void send_OBD_cmd(char *obd_cmd);
-  void obd_init();
+  private:
+    mode_t mode;
+    SoftwareSerial *serial;
+    void setupBluetoothModule();
+    unsigned int rxPin, txPin, resetPin, atPin;
+    void enterComMode();
+    void enterATMode();
+    void reset();
+    boolean sendATCommand(const char* command);
+    void send_OBD_cmd(char *obd_cmd);
+    void obd_init();
 };
 #endif

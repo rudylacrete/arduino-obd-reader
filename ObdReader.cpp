@@ -1,3 +1,7 @@
+/*
+This source code is inspired from the following:
+http://www.kokoras.com/OBD/Arduino_HC-05_ELM327_OBD_RPM_Shift_Light.htm
+*/
 #include <inttypes.h>
 #include <Arduino.h>
 #include "ObdReader.h"
