@@ -26,7 +26,7 @@ void setup()
 void loop()
 {
   drawRpm(reader.getRpm());
-  delay(1000);
+  delay(100);
 }
 
 void drawRpm(int rpm) {
