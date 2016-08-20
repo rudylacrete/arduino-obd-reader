@@ -16,6 +16,6 @@ void setup()
 void loop()
 {
   Serial.println(reader.getRpm());
-  delay(1000);
+  delay(100);
 }
 

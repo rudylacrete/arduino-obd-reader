@@ -30,6 +30,7 @@ void ObdReader::setupBluetoothModule() {
   sendATCommand("ORGL");                   //send ORGL, reset to original properties
   sendATCommand("ROLE=1");                 //send ROLE=1, set role to master
   sendATCommand("CMODE=0");                //send CMODE=0, set connection mode to specific address
+  sendATCommand("PSWD=1234");
   sendATCommand("BIND=1122,33,DDEEFF");    //send BIND=??, bind HC-05 to OBD bluetooth address
   sendATCommand("INIT");                   //send INIT, cant connect without this cmd 
   delay(1000); 
