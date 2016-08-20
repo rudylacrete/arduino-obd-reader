@@ -10,7 +10,10 @@ void ObdReader::setup() {
   pinMode(rxPin, INPUT);
   pinMode(txPin, OUTPUT);
   pinMode(atPin, OUTPUT);
-  pinMode(resetPin, OUTPUT);
+  pinMode(powerPin, OUTPUT);
+
+  digitalWrite(atPin, LOW);
+  digitalWrite(powerPin, HIGH);
 
   serial = new SoftwareSerial(rxPin, txPin);
   serial->begin(BAUDRATE);
@@ -40,11 +43,13 @@ void ObdReader::setupBluetoothModule() {
 
 boolean ObdReader::sendATCommand(const char* command) {
   char recvChar;
-  char str[50];
+  char str[100] = {'\0'};
+  char buf[100] = {'\0'};
   int i = 0, retries = 0;
   boolean OK_flag = false;
 
-  Serial.println("Sending AT command ...");
+  sprintf(buf, "Sending AT command ... %s", command);
+  Serial.println(buf);
   while ((retries < BT_CMD_RETRIES) && (!OK_flag)) {     //while not OK and bluetooth cmd retries not reached
       
      serial->print("AT");                       //sent AT cmd to HC-05
@@ -62,9 +67,10 @@ boolean ObdReader::sendATCommand(const char* command) {
       i++;
     }
     retries = retries + 1;                                  //increase retries
-    char buf[50];
-    Serial.println(printf("AT+%s : %s", command, str));
-    if (strcmp(str, "OK") == 0) OK_flag=true;   //if response is OK then OK-flag set to true
+    
+    OK_flag = (str[0] == 'O' && str[1] == 'K');   //if response is OK then OK-flag set to true
+    sprintf(buf, "Reply: %s |||| %d", str, OK_flag);
+    Serial.println(buf);
     delay(1000);
   }
 
@@ -172,9 +178,9 @@ void ObdReader::enterATMode() {
 }
 
 void ObdReader::reset() {
-  digitalWrite(resetPin, LOW);
+  digitalWrite(powerPin, LOW);
   delay(2000);
-  digitalWrite(resetPin, HIGH);
+  digitalWrite(powerPin, HIGH);
   mode = COM;
 }
 
