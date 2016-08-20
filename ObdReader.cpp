@@ -44,8 +44,8 @@ void ObdReader::setupBluetoothModule() {
 
 boolean ObdReader::sendATCommand(const char* command) {
   char recvChar;
-  char str[100] = {'\0'};
-  char buf[100] = {'\0'};
+  char str[30] = {'\0'};
+  char buf[40] = {'\0'};
   int i = 0, retries = 0;
   boolean OK_flag = false;
 

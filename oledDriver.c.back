@@ -1,0 +1,28 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+
+display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
+void drawRpm(int rpm) {
+  uint8_t barNumber = 12, spaceBetween = 2;
+  int marginTop = 10, maxHeight = display.height() - marginTop, minHeight = maxHeight/barNumber;
+  int barWidth = display.width()/(float)barNumber - spaceBetween;
+  uint8_t nToDisplay = map(rpm, 0, MAX_RPM, 0, barNumber);
+  char buf[30] = {'\0'};
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  sprintf(buf, "%d RPM", rpm);
+  Serial.print(buf);
+  display.print((const char*)buf);
+  for(uint8_t i = 0; i < nToDisplay; i++) {
+    int h = minHeight * (i + 1);
+    display.fillRect(i * (barWidth + spaceBetween), display.height() - h, barWidth, h, WHITE);
+  }
+  display.display();
+}
+
