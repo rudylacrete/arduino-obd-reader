@@ -7,6 +7,8 @@
 #define RED CRGB::Red
 #define ORANGE CRGB(255, 100, 0)
 
+#define STATE_LED 6
+
 ObdReader reader(2, 3, 4, 5);
 
 // Define the array of leds
@@ -15,11 +17,14 @@ CRGB leds[NUM_LEDS];
 
 void setup()
 {
+  pinMode(STATE_LED, OUTPUT);
+  digitalWrite(STATE_LED, LOW);
   Serial.begin(9600);
   FastLED.addLeds<WS2801, RBG>(leds, NUM_LEDS);
   FastLED.setBrightness(255);
   reader.setup();
   Serial.println("setup done ....");
+  digitalWrite(STATE_LED, HIGH);
 } 
 
  
