@@ -126,8 +126,6 @@ void ObdReader::obd_init() {
   delay(500);
   send_OBD_cmd("0140");     //send 0140, retrieve available pid's 40-??
   delay(500);
-  send_OBD_cmd("010C1");    //send 010C1, RPM cmd
-  delay(500);
 }
 
 int ObdReader::getRpm() {
