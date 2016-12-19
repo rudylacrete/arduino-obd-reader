@@ -6,29 +6,29 @@
 #define OBD_CMD_RETRIES 5
 
 #include <SoftwareSerial.h>
+#include <ObdReaderConfig.h>
 
 typedef enum {
   AT = 1,
   COM
 } mode_t;
-  
+
 class ObdReader{
   public:
-    ObdReader(unsigned int rxPin, unsigned int txPin, unsigned int powerPin, unsigned int atPin)
-    :rxPin(rxPin), txPin(txPin), powerPin(powerPin), atPin(atPin){};
+    ObdReader(obd_reader_conf_t config): config(config) {};
     void setup();
     int getRpm();
   private:
     mode_t mode;
     SoftwareSerial *serial;
-    void setupBluetoothModule();
-    unsigned int rxPin, txPin, powerPin, atPin;
+    obd_reader_conf_t config;
+    void connectToBluetoothModule();
     void enterComMode();
     void enterATMode();
     void reset();
-    boolean sendATCommand(const char* command);
-    void send_OBD_cmd(char *obd_cmd);
+    bool sendATCommand(const char* command);
+    void send_OBD_cmd(const char* obd_cmd);
     void obd_init();
+    void getElm327MacAddrFormat(char* dst);
 };
 #endif
-

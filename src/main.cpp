@@ -1,4 +1,6 @@
-#include "ObdReader.h"
+#include <Arduino.h>
+
+#include <ObdReader.h>
 #include "FastLED.h"
 
 #define MAX_RPM 7000
@@ -9,7 +11,16 @@
 
 #define STATE_LED 6
 
-ObdReader reader(2, 3, 4, 5);
+void drawRpm(int);
+
+ObdReader reader((obd_reader_conf_t){
+  .rxPin = 2,
+  .txPin = 3,
+  .powerPin = 4,
+  .atPin = 5,
+  .slave_mac_addr = "FF:FF:FF:FF:FF:FF",
+  .password = "1234"
+});
 
 // Define the array of leds
 #define NUM_LEDS 10
@@ -25,9 +36,9 @@ void setup()
   reader.setup();
   Serial.println("setup done ....");
   digitalWrite(STATE_LED, HIGH);
-} 
+}
 
- 
+
 void loop()
 {
   drawRpm(reader.getRpm());
@@ -35,7 +46,7 @@ void loop()
 }
 
 void drawRpm(int rpm) {
-  uint8_t NUMBER_GREEN = 4, NUMBER_ORANGE = 3, NUMBER_RED = 3;
+  uint8_t NUMBER_GREEN = 4, NUMBER_ORANGE = 3;
   uint8_t oThreshold = NUMBER_GREEN, rThreshold = NUMBER_GREEN + NUMBER_ORANGE;
   uint8_t ledToDisplay = map(rpm, 0, MAX_RPM, 0, NUM_LEDS);
   FastLED.clear(true);
@@ -46,4 +57,3 @@ void drawRpm(int rpm) {
   }
   FastLED.show();
 }
-
