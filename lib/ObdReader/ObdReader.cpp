@@ -2,7 +2,6 @@
 This source code is inspired from the following:
 http://www.kokoras.com/OBD/Arduino_HC-05_ELM327_OBD_RPM_Shift_Light.htm
 */
-#include <inttypes.h>
 #include <Arduino.h>
 #include "ObdReader.h"
 
@@ -33,11 +32,15 @@ void ObdReader::connectToBluetoothModule() {
   strcat(bindCmd, _mac);
   strcat(linkCmd, _mac);
 
+  bool hasCallback = config.progressCallback != NULL;
+
+if(hasCallback) config.progressCallback(10);
   enterATMode();                          //enter HC-05 AT mode
-  delay(500);
+  delay(100);
 
   sendATCommand("RESET");                  //send to HC-05 RESET
-  delay(500);
+  delay(100);
+  if(hasCallback) config.progressCallback(20);
   sendATCommand("ORGL");                   //send ORGL, reset to original properties
   sendATCommand("ROLE=1");                 //send ROLE=1, set role to master
   sendATCommand("CMODE=0");                //send CMODE=0, set connection mode to specific address
@@ -46,15 +49,20 @@ void ObdReader::connectToBluetoothModule() {
     snprintf(pwdCmd, sizeof(pwdCmd), "PSWD=%s", config.password);
     sendATCommand(pwdCmd);
   }
+  if(hasCallback) config.progressCallback(30);
   sendATCommand(bindCmd);    //send BIND=??, bind HC-05 to OBD bluetooth address
   sendATCommand("INIT");                   //send INIT, cant connect without this cmd
-  delay(500);
+  delay(100);
+  if(hasCallback) config.progressCallback(50);
   sendATCommand(pairCmd); //send PAIR, pair with OBD address
-  delay(500);
+  delay(100);
+  if(hasCallback) config.progressCallback(70);
   sendATCommand(linkCmd);    //send LINK, link with OBD address
-  delay(500);
+  delay(100);
+  if(hasCallback) config.progressCallback(90);
   enterComMode();                          //enter HC-05 comunication mode
-  delay(500);
+  delay(100);
+  if(hasCallback) config.progressCallback(100);
 }
 
 bool ObdReader::sendATCommand(const char* command) {
@@ -117,15 +125,15 @@ void ObdReader::send_OBD_cmd(const char* obd_cmd) {
 
 void ObdReader::obd_init() {
   send_OBD_cmd("ATZ");      //send to OBD ATZ, reset
-  delay(500);
+  delay(100);
   send_OBD_cmd("ATSP0");    //send ATSP0, protocol auto
 
   send_OBD_cmd("0100");     //send 0100, retrieve available pid's 00-19
-  delay(500);
+  delay(100);
   send_OBD_cmd("0120");     //send 0120, retrieve available pid's 20-39
-  delay(500);
+  delay(100);
   send_OBD_cmd("0140");     //send 0140, retrieve available pid's 40-??
-  delay(500);
+  delay(100);
 }
 
 int ObdReader::getRpm() {

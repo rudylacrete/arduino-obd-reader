@@ -12,6 +12,10 @@
 #define STATE_LED 6
 
 void drawRpm(int);
+void drawInitProgress(uint8_t);
+void onBluetoothProgressCallback(uint8_t progress) {
+  drawInitProgress(progress);
+}
 
 ObdReader reader((obd_reader_conf_t){
   .rxPin = 2,
@@ -19,12 +23,14 @@ ObdReader reader((obd_reader_conf_t){
   .powerPin = 4,
   .atPin = 5,
   .slave_mac_addr = "FF:FF:FF:FF:FF:FF",
-  .password = "1234"
+  .password = "1234",
+  .progressCallback = onBluetoothProgressCallback
 });
 
 // Define the array of leds
 #define NUM_LEDS 10
 CRGB leds[NUM_LEDS];
+
 
 void setup()
 {
@@ -54,6 +60,16 @@ void drawRpm(int rpm) {
     if(i >= rThreshold) leds[i] = RED;
     else if(i >= oThreshold) leds[i] = ORANGE;
     else leds[i] = GREEN;
+  }
+  FastLED.show();
+}
+
+void drawInitProgress(uint8_t percent) {
+  uint8_t ledToDisplay = map(percent, 0, 100, 0, NUM_LEDS);
+  Serial.println(percent);
+  FastLED.clear(true);
+  for(int i = 0; i < ledToDisplay; i++) {
+    leds[i] = GREEN;
   }
   FastLED.show();
 }

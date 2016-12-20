@@ -5,6 +5,7 @@
 #define BT_CMD_RETRIES 2     //Number of retries for each Bluetooth AT command in case of not responde with OK
 #define OBD_CMD_RETRIES 5
 
+#include <inttypes.h>
 #include <SoftwareSerial.h>
 #include <ObdReaderConfig.h>
 
