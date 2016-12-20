@@ -48,7 +48,7 @@ bool ObdReader::connectToBluetoothModule() {
 
   atResult = sendATCommand("RESET");                  //send to HC-05 RESET
   if(!atResult) return atResult;
-  delay(200);
+  delay(500);
   if(hasCallback) config.progressCallback(20);
 
   atResult = sendATCommand("ORGL");                   //send ORGL, reset to original properties
