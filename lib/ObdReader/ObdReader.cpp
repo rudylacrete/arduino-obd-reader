@@ -158,22 +158,22 @@ bool ObdReader::obd_init() {
 
   res = send_OBD_cmd("ATZ");      //send to OBD ATZ, reset
   if(!res) return res;
-  delay(200);
+  delay(100);
 
   res = send_OBD_cmd("ATSP0");    //send ATSP0, protocol auto
   if(!res) return res;
 
   res = send_OBD_cmd("0100");     //send 0100, retrieve available pid's 00-19
   if(!res) return res;
-  delay(200);
+  delay(100);
 
   res = send_OBD_cmd("0120");     //send 0120, retrieve available pid's 20-39
   if(!res) return res;
-  delay(200);
+  delay(100);
 
   res = send_OBD_cmd("0140");     //send 0140, retrieve available pid's 40-??
   if(!res) return res;
-  delay(200);
+  delay(100);
 
   return res;
 }
