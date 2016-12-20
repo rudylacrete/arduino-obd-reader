@@ -5,7 +5,9 @@ http://www.kokoras.com/OBD/Arduino_HC-05_ELM327_OBD_RPM_Shift_Light.htm
 #include <Arduino.h>
 #include "ObdReader.h"
 
-void ObdReader::setup() {
+bool ObdReader::setup() {
+  bool res = false;
+
   pinMode(config.rxPin, INPUT);
   pinMode(config.txPin, OUTPUT);
   pinMode(config.atPin, OUTPUT);
@@ -16,11 +18,16 @@ void ObdReader::setup() {
 
   serial = new SoftwareSerial(config.rxPin, config.txPin);
   serial->begin(BAUDRATE);
-  connectToBluetoothModule();
-  obd_init();
+  res = connectToBluetoothModule();
+  if(!res) return res;
+
+  res = obd_init();
+  if(!res) return res;
+  if(config.progressCallback != NULL) config.progressCallback(100);
+  return res;
 }
 
-void ObdReader::connectToBluetoothModule() {
+bool ObdReader::connectToBluetoothModule() {
   char _mac[15] = {'\0'};
   char linkCmd[20] = "LINK=";
   char bindCmd[20] = "BIND=";
@@ -33,36 +40,55 @@ void ObdReader::connectToBluetoothModule() {
   strcat(linkCmd, _mac);
 
   bool hasCallback = config.progressCallback != NULL;
+  bool atResult = false;
 
-if(hasCallback) config.progressCallback(10);
+  if(hasCallback) config.progressCallback(10);
   enterATMode();                          //enter HC-05 AT mode
   delay(100);
 
-  sendATCommand("RESET");                  //send to HC-05 RESET
+  atResult = sendATCommand("RESET");                  //send to HC-05 RESET
+  if(!atResult) return atResult;
   delay(100);
   if(hasCallback) config.progressCallback(20);
-  sendATCommand("ORGL");                   //send ORGL, reset to original properties
-  sendATCommand("ROLE=1");                 //send ROLE=1, set role to master
-  sendATCommand("CMODE=0");                //send CMODE=0, set connection mode to specific address
+
+  atResult = sendATCommand("ORGL");                   //send ORGL, reset to original properties
+  if(!atResult) return atResult;
+
+  atResult = sendATCommand("ROLE=1");                 //send ROLE=1, set role to master
+  if(!atResult) return atResult;
+  atResult = sendATCommand("CMODE=0");                //send CMODE=0, set connection mode to specific address
+  if(!atResult) return atResult;
+
   if(strlen(config.password) > 0) {
     char pwdCmd[10] = {'\0'};
     snprintf(pwdCmd, sizeof(pwdCmd), "PSWD=%s", config.password);
-    sendATCommand(pwdCmd);
+    atResult = sendATCommand(pwdCmd);
+    if(!atResult) return atResult;
   }
   if(hasCallback) config.progressCallback(30);
-  sendATCommand(bindCmd);    //send BIND=??, bind HC-05 to OBD bluetooth address
-  sendATCommand("INIT");                   //send INIT, cant connect without this cmd
+
+  atResult = sendATCommand(bindCmd);    //send BIND=??, bind HC-05 to OBD bluetooth address
+  if(!atResult) return atResult;
+  atResult = sendATCommand("INIT");                   //send INIT, cant connect without this cmd
+  if(!atResult) return atResult;
   delay(100);
   if(hasCallback) config.progressCallback(50);
-  sendATCommand(pairCmd); //send PAIR, pair with OBD address
+
+  atResult = sendATCommand(pairCmd); //send PAIR, pair with OBD address
+  if(!atResult) return atResult;
   delay(100);
   if(hasCallback) config.progressCallback(70);
-  sendATCommand(linkCmd);    //send LINK, link with OBD address
+
+  atResult = sendATCommand(linkCmd);    //send LINK, link with OBD address
+  if(!atResult) return atResult;
   delay(100);
-  if(hasCallback) config.progressCallback(90);
+  if(hasCallback) config.progressCallback(80);
+
   enterComMode();                          //enter HC-05 comunication mode
   delay(100);
-  if(hasCallback) config.progressCallback(100);
+  if(hasCallback) config.progressCallback(90);
+
+  return atResult;
 }
 
 bool ObdReader::sendATCommand(const char* command) {
@@ -101,7 +127,7 @@ bool ObdReader::sendATCommand(const char* command) {
   return OK_flag;
 }
 
-void ObdReader::send_OBD_cmd(const char* obd_cmd) {
+bool ObdReader::send_OBD_cmd(const char* obd_cmd) {
   char recvChar;
   boolean prompt;
   int retries;
@@ -116,24 +142,40 @@ void ObdReader::send_OBD_cmd(const char* obd_cmd) {
 
     while ((serial->available()>0) && (!prompt)){       //while there is data and not prompt
       recvChar = serial->read();                        //read from elm
-      if (recvChar == 62) prompt=true;                            //if received char is '>' then prompt is true
+      if (recvChar == 62) {
+        prompt = true;                            //if received char is '>' then prompt is true
+        return prompt;
+      }
     }
     retries++;                                          //increase retries
     delay(2000);
   }
+  return prompt;
 }
 
-void ObdReader::obd_init() {
-  send_OBD_cmd("ATZ");      //send to OBD ATZ, reset
-  delay(100);
-  send_OBD_cmd("ATSP0");    //send ATSP0, protocol auto
+bool ObdReader::obd_init() {
+  bool res = false;
 
-  send_OBD_cmd("0100");     //send 0100, retrieve available pid's 00-19
+  res = send_OBD_cmd("ATZ");      //send to OBD ATZ, reset
+  if(!res) return res;
   delay(100);
-  send_OBD_cmd("0120");     //send 0120, retrieve available pid's 20-39
+
+  res = send_OBD_cmd("ATSP0");    //send ATSP0, protocol auto
+  if(!res) return res;
+
+  res = send_OBD_cmd("0100");     //send 0100, retrieve available pid's 00-19
+  if(!res) return res;
   delay(100);
-  send_OBD_cmd("0140");     //send 0140, retrieve available pid's 40-??
+
+  res = send_OBD_cmd("0120");     //send 0120, retrieve available pid's 20-39
+  if(!res) return res;
   delay(100);
+
+  res = send_OBD_cmd("0140");     //send 0140, retrieve available pid's 40-??
+  if(!res) return res;
+  delay(100);
+
+  return res;
 }
 
 int ObdReader::getRpm() {

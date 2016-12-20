@@ -17,6 +17,8 @@ void onBluetoothProgressCallback(uint8_t progress) {
   drawInitProgress(progress);
 }
 
+bool bluetoothInitOk = false;
+
 ObdReader reader((obd_reader_conf_t){
   .rxPin = 2,
   .txPin = 3,
@@ -31,7 +33,6 @@ ObdReader reader((obd_reader_conf_t){
 #define NUM_LEDS 10
 CRGB leds[NUM_LEDS];
 
-
 void setup()
 {
   pinMode(STATE_LED, OUTPUT);
@@ -39,14 +40,18 @@ void setup()
   Serial.begin(9600);
   FastLED.addLeds<WS2801, RBG>(leds, NUM_LEDS);
   FastLED.setBrightness(255);
-  reader.setup();
-  Serial.println("setup done ....");
-  digitalWrite(STATE_LED, HIGH);
+  bluetoothInitOk = reader.setup();
+  if(bluetoothInitOk)
+    Serial.println("setup done ....");
+  else
+    Serial.println("Bluetooth was not initialized correctly");
+  digitalWrite(STATE_LED, bluetoothInitOk ? HIGH : LOW);
 }
 
 
 void loop()
 {
+  if(!bluetoothInitOk) return;
   drawRpm(reader.getRpm());
   delay(100);
 }

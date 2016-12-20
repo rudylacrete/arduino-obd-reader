@@ -17,19 +17,19 @@ typedef enum {
 class ObdReader{
   public:
     ObdReader(obd_reader_conf_t config): config(config) {};
-    void setup();
+    bool setup();
     int getRpm();
   private:
     mode_t mode;
     SoftwareSerial *serial;
     obd_reader_conf_t config;
-    void connectToBluetoothModule();
+    bool connectToBluetoothModule();
     void enterComMode();
     void enterATMode();
     void reset();
     bool sendATCommand(const char* command);
-    void send_OBD_cmd(const char* obd_cmd);
-    void obd_init();
+    bool send_OBD_cmd(const char* obd_cmd);
+    bool obd_init();
     void getElm327MacAddrFormat(char* dst);
 };
 #endif
