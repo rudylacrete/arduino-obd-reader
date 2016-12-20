@@ -48,7 +48,7 @@ bool ObdReader::connectToBluetoothModule() {
 
   atResult = sendATCommand("RESET");                  //send to HC-05 RESET
   if(!atResult) return atResult;
-  delay(100);
+  delay(200);
   if(hasCallback) config.progressCallback(20);
 
   atResult = sendATCommand("ORGL");                   //send ORGL, reset to original properties
@@ -71,21 +71,21 @@ bool ObdReader::connectToBluetoothModule() {
   if(!atResult) return atResult;
   atResult = sendATCommand("INIT");                   //send INIT, cant connect without this cmd
   if(!atResult) return atResult;
-  delay(100);
+  delay(200);
   if(hasCallback) config.progressCallback(50);
 
   atResult = sendATCommand(pairCmd); //send PAIR, pair with OBD address
   if(!atResult) return atResult;
-  delay(100);
+  delay(200);
   if(hasCallback) config.progressCallback(70);
 
   atResult = sendATCommand(linkCmd);    //send LINK, link with OBD address
   if(!atResult) return atResult;
-  delay(100);
+  delay(200);
   if(hasCallback) config.progressCallback(80);
 
   enterComMode();                          //enter HC-05 comunication mode
-  delay(100);
+  delay(200);
   if(hasCallback) config.progressCallback(90);
 
   return atResult;
@@ -158,22 +158,22 @@ bool ObdReader::obd_init() {
 
   res = send_OBD_cmd("ATZ");      //send to OBD ATZ, reset
   if(!res) return res;
-  delay(100);
+  delay(200);
 
   res = send_OBD_cmd("ATSP0");    //send ATSP0, protocol auto
   if(!res) return res;
 
   res = send_OBD_cmd("0100");     //send 0100, retrieve available pid's 00-19
   if(!res) return res;
-  delay(100);
+  delay(200);
 
   res = send_OBD_cmd("0120");     //send 0120, retrieve available pid's 20-39
   if(!res) return res;
-  delay(100);
+  delay(200);
 
   res = send_OBD_cmd("0140");     //send 0140, retrieve available pid's 40-??
   if(!res) return res;
-  delay(100);
+  delay(200);
 
   return res;
 }

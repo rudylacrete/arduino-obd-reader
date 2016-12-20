@@ -43,8 +43,12 @@ void setup()
   bluetoothInitOk = reader.setup();
   if(bluetoothInitOk)
     Serial.println("setup done ....");
-  else
+  else {
     Serial.println("Bluetooth was not initialized correctly");
+    FastLED.showColor(RED);
+    delay(4000);
+    FastLED.clear(true);
+  }
   digitalWrite(STATE_LED, bluetoothInitOk ? HIGH : LOW);
 }
 
