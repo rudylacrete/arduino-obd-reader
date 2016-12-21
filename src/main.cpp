@@ -10,6 +10,7 @@
 #define ORANGE CRGB(255, 100, 0)
 
 #define STATE_LED 6
+#define BUTTON 8
 
 void drawRpm(int);
 void drawInitProgress(uint8_t);
@@ -18,6 +19,12 @@ void onBluetoothProgressCallback(uint8_t progress) {
 }
 
 bool bluetoothInitOk = false;
+
+long lastDebounceTime = 0;  // the last time the output pin was toggled
+long debounceDelay = 50;    // the debounce time
+bool buttonState = false;
+long lastRpmTime = 0;
+long rpmDelay = 100; // read one each 100ms
 
 ObdReader reader((obd_reader_conf_t){
   .rxPin = 2,
@@ -56,8 +63,26 @@ void setup()
 void loop()
 {
   if(!bluetoothInitOk) return;
-  drawRpm(reader.getRpm());
-  delay(100);
+  // read button state
+  uint8_t reading = digitalRead(BUTTON);
+  if (reading != buttonState) {
+    // reset the debouncing timer
+    lastDebounceTime = millis();
+  }
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer
+    // than the debounce delay, so take it as the actual current state:
+    buttonState = reading;
+  }
+  if(buttonState) {
+    // do something
+  }
+
+  // update RPM
+  if(millis() - lastRpmTime >= rpmDelay) {
+    lastRpmTime = millis();
+    drawRpm(reader.getRpm());
+  }
 }
 
 void drawRpm(int rpm) {
