@@ -261,3 +261,7 @@ void ObdReader::getElm327MacAddrFormat(char* dst) {
   memcpy(dst + 10, mac_addr + 12, 2);
   memcpy(dst + 12, mac_addr + 15, 2);
 }
+
+void ObdReader::stop() {
+  digitalWrite(config.powerPin, LOW);
+}

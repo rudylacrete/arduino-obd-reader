@@ -19,6 +19,7 @@ class ObdReader{
     ObdReader(obd_reader_conf_t config): config(config) {};
     bool setup();
     int getRpm();
+    void stop();
   private:
     mode_t mode;
     SoftwareSerial *serial;
